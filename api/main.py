@@ -36,7 +36,7 @@ async def bin_info(bin: str = Query(...)):
             return JSONResponse({"error": f"BIN info not found for {bin}"}, status_code=res.status_code)
         return JSONResponse(res.json())
 
-@app.get("/generate", response_class=PlainTextResponse)
+@app.get("/generate", response_class=JSONResponse)
 async def generate_cards(
     bin: str,
     limit: str = Query(default=None),
@@ -59,7 +59,11 @@ async def generate_cards(
 
     async with httpx.AsyncClient() as client:
         res = await client.get(url)
-        return PlainTextResponse(res.text, status_code=res.status_code)
+        try:
+            data = res.json()
+            return JSONResponse(content=data, status_code=res.status_code)
+        except Exception:
+            return JSONResponse(content={"error": "Invalid JSON response"}, status_code=500)
 
 
 @app.get("/generate/view", response_class=PlainTextResponse)

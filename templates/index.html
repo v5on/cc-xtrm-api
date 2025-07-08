@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CC Gen Sub-API</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+  <div class="max-w-3xl mx-auto mt-10 p-6 bg-white shadow-xl rounded-lg">
+    <h1 class="text-3xl font-bold text-center mb-4">💳 Credit Card Generator API</h1>
+
+    <p class="text-center text-sm mb-4 text-gray-600">
+      Main API Health: 
+      <span class="font-semibold {% if health.status == 'healthy' %}text-green-600{% else %}text-red-600{% endif %}">
+        {{ health.status }}
+      </span>
+    </p>
+
+    <form action="/bin-info" method="get" class="grid grid-cols-1 gap-4">
+      <input type="text" name="bin" placeholder="Enter BIN (e.g. 51546200278)" required class="p-2 border rounded">
+      <button class="bg-blue-600 text-white py-2 rounded hover:bg-blue-700">🔍 Get BIN Info</button>
+    </form>
+
+    {% if bin_info %}
+    <div class="mt-6 border-t pt-4">
+      <h2 class="text-xl font-semibold mb-2">BIN Information</h2>
+      <ul class="grid grid-cols-2 gap-2 text-sm">
+        <li><strong>BIN:</strong> {{ bin_info.bin }}</li>
+        <li><strong>Bank:</strong> {{ bin_info.bank }}</li>
+        <li><strong>Country:</strong> {{ bin_info.country }} ({{ bin_info.flag }})</li>
+        <li><strong>Scheme:</strong> {{ bin_info.scheme }}</li>
+        <li><strong>Type:</strong> {{ bin_info.type }}</li>
+        <li><strong>Tier:</strong> {{ bin_info.tier }}</li>
+        <li><strong>Currency:</strong> {{ bin_info.currency }}</li>
+        <li><strong>Prepaid:</strong> {{ "Yes" if bin_info.prepaid else "No" }}</li>
+      </ul>
+    </div>
+    {% elif error %}
+    <p class="text-red-600 mt-4">{{ error }}</p>
+    {% endif %}
+
+    <div class="mt-8 border-t pt-4">
+      <h2 class="text-xl font-semibold mb-2">⚙️ Generate Cards</h2>
+      <form action="/generate" method="get" class="grid grid-cols-2 gap-4">
+        <input type="text" name="bin" placeholder="BIN (e.g. 51546200278XXXXX)" required class="p-2 border rounded">
+        <input type="number" name="limit" placeholder="Limit (e.g. 5)" class="p-2 border rounded">
+        <input type="text" name="month" placeholder="MM (e.g. 01)" class="p-2 border rounded">
+        <input type="text" name="year" placeholder="YY (e.g. 27)" class="p-2 border rounded">
+        <input type="text" name="cvv" placeholder="CVV or 'rnd'" class="p-2 border rounded">
+        <button class="bg-green-600 text-white py-2 rounded hover:bg-green-700 col-span-2">Generate</button>
+      </form>
+    </div>
+
+    <div class="mt-6 border-t pt-4">
+      <h2 class="text-xl font-semibold mb-2">📄 Download TXT</h2>
+      <form action="/generate/view" method="get" class="grid grid-cols-2 gap-4">
+        <input type="text" name="bin" placeholder="BIN (e.g. 51546200278XXXXX)" required class="p-2 border rounded">
+        <input type="number" name="limit" placeholder="Limit (e.g. 10)" class="p-2 border rounded">
+        <input type="text" name="month" placeholder="MM (e.g. 01)" class="p-2 border rounded">
+        <input type="text" name="year" placeholder="YY (e.g. 27)" class="p-2 border rounded">
+        <input type="text" name="cvv" placeholder="CVV or 'rnd'" class="p-2 border rounded">
+        <button class="bg-purple-600 text-white py-2 rounded hover:bg-purple-700 col-span-2">Download TXT</button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

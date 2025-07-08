@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Request, Query
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, PlainTextResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 import httpx
@@ -44,32 +44,8 @@ async def bin_info(request: Request, bin: str = Query(...)):
         "health": {"status": "healthy"}
     })
 
-
-@app.get("/generate")
-async def redirect_generate(
-    bin: str,
-    limit: str = Query(default=None),
-    month: str = Query(default=None),
-    year: str = Query(default=None),
-    cvv: str = Query(default=None)
-):
-    # Build query string dynamically (ignore empty strings)
-    params = [f"bin={bin}"]
-    if limit and limit.strip():
-        params.append(f"limit={limit.strip()}")
-    if month and month.strip():
-        params.append(f"month={month.strip()}")
-    if year and year.strip():
-        params.append(f"year={year.strip()}")
-    if cvv and cvv.strip():
-        params.append(f"cvv={cvv.strip()}")
-    
-    url = f"{BASE_API}/generate?{'&'.join(params)}"
-    return RedirectResponse(url)
-
-
-@app.get("/generate/view")
-async def redirect_txt(
+@app.get("/generate", response_class=PlainTextResponse)
+async def generate_cards(
     bin: str,
     limit: str = Query(default=None),
     month: str = Query(default=None),
@@ -85,6 +61,36 @@ async def redirect_txt(
         params.append(f"year={year.strip()}")
     if cvv and cvv.strip():
         params.append(f"cvv={cvv.strip()}")
-    
-    url = f"{BASE_API}/generate/view?{'&'.join(params)}"
-    return RedirectResponse(url)
+
+    query_string = "&".join(params)
+    url = f"{BASE_API}/generate?{query_string}"
+
+    async with httpx.AsyncClient() as client:
+        res = await client.get(url)
+        return PlainTextResponse(res.text, status_code=res.status_code)
+
+
+@app.get("/generate/view", response_class=PlainTextResponse)
+async def generate_txt(
+    bin: str,
+    limit: str = Query(default=None),
+    month: str = Query(default=None),
+    year: str = Query(default=None),
+    cvv: str = Query(default=None)
+):
+    params = [f"bin={bin}"]
+    if limit and limit.strip():
+        params.append(f"limit={limit.strip()}")
+    if month and month.strip():
+        params.append(f"month={month.strip()}")
+    if year and year.strip():
+        params.append(f"year={year.strip()}")
+    if cvv and cvv.strip():
+        params.append(f"cvv={cvv.strip()}")
+
+    query_string = "&".join(params)
+    url = f"{BASE_API}/generate/view?{query_string}"
+
+    async with httpx.AsyncClient() as client:
+        res = await client.get(url)
+        return PlainTextResponse(res.text, status_code=res.status_code)

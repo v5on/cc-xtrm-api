@@ -47,11 +47,48 @@ async def bin_info(request: Request, bin: str = Query(...)):
     })
 
 @app.get("/generate")
-async def redirect_generate(bin: str, limit: int = 10, month: str = "01", year: str = "27", cvv: str = "rnd"):
-    url = f"{BASE_API}/generate?bin={bin}&limit={limit}&month={month}&year={year}&cvv={cvv}"
+async def redirect_generate(
+    bin: str,
+    limit: int = Query(default=None),
+    month: str = Query(default=None),
+    year: str = Query(default=None),
+    cvv: str = Query(default=None)
+):
+    # Dynamically build query string
+    params = [f"bin={bin}"]
+    if limit is not None:
+        params.append(f"limit={limit}")
+    if month is not None:
+        params.append(f"month={month}")
+    if year is not None:
+        params.append(f"year={year}")
+    if cvv is not None:
+        params.append(f"cvv={cvv}")
+    
+    query_string = "&".join(params)
+    url = f"{BASE_API}/generate?{query_string}"
     return RedirectResponse(url)
 
+
 @app.get("/generate/view")
-async def redirect_txt(bin: str, limit: int = 10, month: str = "01", year: str = "27", cvv: str = "rnd"):
-    url = f"{BASE_API}/generate/view?bin={bin}&limit={limit}&month={month}&year={year}&cvv={cvv}"
+async def redirect_txt(
+    bin: str,
+    limit: int = Query(default=None),
+    month: str = Query(default=None),
+    year: str = Query(default=None),
+    cvv: str = Query(default=None)
+):
+    # Dynamically build query string
+    params = [f"bin={bin}"]
+    if limit is not None:
+        params.append(f"limit={limit}")
+    if month is not None:
+        params.append(f"month={month}")
+    if year is not None:
+        params.append(f"year={year}")
+    if cvv is not None:
+        params.append(f"cvv={cvv}")
+    
+    query_string = "&".join(params)
+    url = f"{BASE_API}/generate/view?{query_string}"
     return RedirectResponse(url)

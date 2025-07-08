@@ -2,6 +2,7 @@ from fastapi import FastAPI, Request, Query
 from fastapi.responses import HTMLResponse, PlainTextResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 import httpx
 
 app = FastAPI()
@@ -27,22 +28,13 @@ async def index(request: Request):
         "health": health_data
     })
 
-@app.get("/bin-info", response_class=HTMLResponse)
-async def bin_info(request: Request, bin: str = Query(...)):
+@app.get("/bin-info")
+async def bin_info(bin: str = Query(...)):
     async with httpx.AsyncClient() as client:
         res = await client.get(f"{BASE_API}/bin/{bin}")
         if res.status_code != 200:
-            return templates.TemplateResponse("index.html", {
-                "request": request,
-                "error": f"BIN info not found for {bin}",
-                "health": {"status": "unknown"}
-            })
-        data = res.json()
-    return templates.TemplateResponse("index.html", {
-        "request": request,
-        "bin_info": data,
-        "health": {"status": "healthy"}
-    })
+            return JSONResponse({"error": f"BIN info not found for {bin}"}, status_code=res.status_code)
+        return JSONResponse(res.json())
 
 @app.get("/generate", response_class=PlainTextResponse)
 async def generate_cards(

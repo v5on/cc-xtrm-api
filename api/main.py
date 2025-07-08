@@ -2,7 +2,7 @@ from fastapi import FastAPI, Request, Query
 from fastapi.responses import HTMLResponse, PlainTextResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
-
+from fastapi.responses import JSONResponse
 import httpx
 
 app = FastAPI()
